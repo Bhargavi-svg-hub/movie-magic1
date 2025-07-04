@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MovieMagic | Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* Basic Styling (you should ideally move this to your styles.css file) */
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; }
+        header { background-color: #333; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5em; font-weight: bold; }
+        nav ul { list-style: none; margin: 0; padding: 0; display: flex; }
+        nav ul li { margin-right: 20px; }
+        nav ul li a { color: white; text-decoration: none; }
+        nav ul li a:hover { text-decoration: underline; }
+
+        .hero-banner {
+            background: url('https://via.placeholder.com/1500x400/0000FF/FFFFFF?text=MovieMagic+Banner') no-repeat center center/cover;
+            color: white;
+            text-align: center;
+            padding: 100px 20px;
+        }
+        .hero-text h1 { font-size: 3em; margin-bottom: 10px; }
+        .hero-text p { font-size: 1.2em; margin-bottom: 20px; }
+        .btn { background-color: #e50914; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
+        .btn:hover { background-color: #b2070f; }
+        .genre-filters { text-align: center; padding: 15px; background-color: #eee; border-bottom: 1px solid #ddd; }
+        .genre-chip { display: inline-block; padding: 8px 15px; margin: 5px; background-color: #ddd; border-radius: 20px; cursor: pointer; }
+        .genre-chip:hover { background-color: #ccc; }
+        .movie-section { padding: 20px; max-width: 1200px; margin: 20px auto; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .movie-section h2 { text-align: center; margin-bottom: 25px; color: #e50914; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .movie-card { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .movie-card:hover { transform: translateY(-5px); }
+        .movie-card img { width: 100%; height: 300px; object-fit: cover; } /* Added object-fit for consistent image sizing */
+        .movie-info { padding: 15px; }
+        .movie-info h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.2em; }
+        .genre-badge { background-color: #f0f0f0; color: #555; padding: 5px 8px; border-radius: 4px; font-size: 0.8em; margin-bottom: 10px; display: inline-block; }
+        .movie-info .btn { display: block; width: calc(100% - 20px); text-align: center; margin-top: 15px; }
+        .btn-secondary { background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; border: none; cursor: not-allowed; opacity: 0.7; }
+        footer { text-align: center; padding: 20px; background-color: #333; color: white; margin-top: 30px; }
+        /* Flash message styling */
+        .flash-messages { list-style: none; padding: 10px; margin: 10px auto; max-width: 800px; border-radius: 5px; text-align: center; }
+        .flash-messages li { margin-bottom: 5px; padding: 8px; border-radius: 4px; }
+        .flash-messages .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .flash-messages .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .flash-messages .info { background-color: #cfe2ff; color: #052c65; border: 1px solid #b6d4fe; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">MovieMagic</div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('debug_bookings') }}">My Bookings</a></li>
+                {% if session.get('user') %}
+                    <li><span>Welcome, {{ session['user'] }}</span></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('register') }}">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <section class="hero-banner">
+        <div class="hero-text">
+            <h1>Welcome to MovieMagic</h1>
+            <p>Discover, book, and experience the magic of cinema</p>
+            <a href="#now-showing-section" class="btn">View Movies</a>
+        </div>
+    </section>
+
+    <div class="genre-filters">
+        <span class="genre-chip">All</span>
+        <span class="genre-chip">Action</span>
+        <span class="genre-chip">Comedy</span>
+        <span class="genre-chip">Drama</span>
+        <span class="genre-chip">Horror</span>
+        <span class="genre-chip">Romance</span>
+        <span class="genre-chip">Animation</span>
+        <span class="genre-chip">Sci-Fi</span>
+    </div>
+
+    <section class="movie-section" id="now-showing-section">
+        <h2>Now Showing</h2>
+        <div class="movie-grid">
+            {% for movie in movies %} {# Iterate over the 'movies' list passed from Flask #}
+            <div class="movie-card">
+                <img src="{{ url_for('static', filename='images/' + movie.poster_filename) }}" alt="{{ movie.title }}">
+                <div class="movie-info">
+                    <h3>{{ movie.title }}</h3>
+                    <span class="genre-badge">{{ movie.genre }}</span>
+                    <a href="{{ url_for('booking', movie_title=movie.title) }}" class="btn">Book Now</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="movie-section">
+        <h2>Coming Soon</h2>
+        <div class="movie-grid">
+            {% for movie in coming_soon_movies %} {# Iterate over the 'coming_soon_movies' list passed from Flask #}
+            <div class="movie-card">
+                <img src="{{ url_for('static', filename='images/' + movie.poster_filename) }}" alt="{{ movie.title }}">
+                <div class="movie-info">
+                    <h3>{{ movie.title }}</h3>
+                    <span class="genre-badge">{{ movie.genre }}</span>
+                    <button class="btn-secondary" disabled>Coming Soon</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 MovieMagic. All rights reserved.</p>
+    </footer>
+</body>
+</html>

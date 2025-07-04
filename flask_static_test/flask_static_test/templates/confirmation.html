@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirmation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <h2>🎉 Your ticket is booked!</h2>
+    <a href="{{ url_for('home') }}" class="btn">Back to Home</a>
+
+    <script>
+        // Trigger a burst of celebration as soon as the page loads
+        confetti({
+            particleCount: 150,
+            spread: 90,
+            origin: { y: 0.6 }
+        });
+    </script>
+</body>
+</html>
